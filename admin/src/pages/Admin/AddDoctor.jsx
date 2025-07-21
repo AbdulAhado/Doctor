@@ -70,7 +70,7 @@ const AddDoctor = () => {
 
 
     } catch (error) {
-      console.error("Error adding doctor:", error);
+      toast.error("Error adding doctor:", error);
       console.log(error.response);
     }
   }

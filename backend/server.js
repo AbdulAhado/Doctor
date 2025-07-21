@@ -4,6 +4,7 @@ import 'dotenv/config'
 import connectDb from './config/mongodb.js'
 import connectCloudinary from './config/cloudinary.js'
 import adminRouter from './routes/adminRoute.js'
+import doctorRouter from './routes/doctorRoute.js'
 
 // app config
 
@@ -18,6 +19,7 @@ app.use(cors())
 
 // api endpoints
 app.use('/api/admin', adminRouter)
+app.use('/api/doctor', doctorRouter)
 
 app.get('/',(req,res)=>{
     res.send("hello wolrd ")
@@ -25,4 +27,6 @@ app.get('/',(req,res)=>{
 app.listen(PORT,()=>{
     console.log(`app is listening on port ${PORT}`)
 })
+
+
 
