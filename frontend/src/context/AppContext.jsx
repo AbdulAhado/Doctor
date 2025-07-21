@@ -4,38 +4,74 @@ import { toast } from "react-toastify";
 export const AppContext = createContext();
 
 const AppContextProvider = (props) => {
-    const [doctors, setDoctors] = useState([]);
+  const [doctors, setDoctors] = useState([]);
+  const [token, setToken] = useState(localStorage.getItem("token") || "");
+  const [userData, setUserData] = useState(false);
+  const currencySymbol = "$";
+  const backendUrl =
+    import.meta.env.VITE_BACKEND_URL || "http://localhost:4500";
 
-    const currencySymbol = '$' 
-    const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:4500';
+  const getDoctorsData = async () => {
+    try {
+      const { data } = await axios.get(`${backendUrl}/api/doctor/list`);
+      if (data.success) {
+        setDoctors(data.doctors);
+        
+      } else {
+        console.log(data.message);
+        toast.error(data.message);
+      }
 
-    const getDoctorsData = async () => {
-        try {
-            const {data} = await axios.get(`${backendUrl}/api/doctor/list`);
-            if (data.success) {
-                setDoctors(data.doctors);
-            }else{
-                toast.error(data.message );
-            }
-        } catch (error) {
-            console.log(error)
-            toast.error(error.message)
-        }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.message);
     }
+  };
+  
 
-    useEffect(() => {
-      getDoctorsData();
-    }, [])
-    
+  const loadUserProfileData = async () => {
+    try {
+      const { data } = await axios.get(`${backendUrl}/api/user/get-profile`, {
+        headers: { token },
+      });
 
-    const value = {
-        doctors,currencySymbol,
+      if(data.success) {
+        setUserData(data.userData);
+      } else {
+        toast.error(data.message);
+      }
+
+    } catch (error) {
+      console.log(error);
+      toast.error(error.message);
     }
-    return (
-        <AppContext.Provider value={value}>
-            {props.children}
-        </AppContext.Provider>
-    )
-}
+  };
+
+  useEffect(() => {
+    getDoctorsData();
+  }, []);
+
+  useEffect(() => {
+    if(token){
+        loadUserProfileData();
+    } else{
+        setUserData(false);
+    }
+  }, [token]);
+
+  const value = {
+    doctors,getDoctorsData,
+    currencySymbol,
+    token,
+    setToken,
+    backendUrl,
+    userData,
+    setUserData,
+    loadUserProfileData
+  };
+  return (
+    <AppContext.Provider value={value}>{props.children}</AppContext.Provider>
+  );
+};
 
 export default AppContextProvider;
